@@ -168,6 +168,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.0
   .brand small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.request-panel{background:var(--navy);color:white;padding:clamp(20px,4vw,42px);border-top:4px solid var(--gold-2);margin-top:28px}.request-panel h2{margin-bottom:12px}.request-panel p{color:var(--muted-on-navy)}.request-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.request-grid label{display:grid;gap:6px;font-weight:600}.request-grid input,.request-grid select,.request-grid textarea{width:100%;padding:12px;border:1px solid var(--line);background:white;color:var(--ink);font:inherit;border-radius:4px}.request-wide{grid-column:1/-1}.request-consent{display:flex;align-items:flex-start;gap:10px;margin:18px 0;font-size:14px}.request-consent input{margin-top:6px}.request-panel button:disabled{opacity:.6;cursor:wait}.request-trap{position:absolute;left:-10000px}.request-panel #request-status{color:var(--gold-1)}@media(max-width:650px){.request-grid{grid-template-columns:1fr}}
 </style>
 
 </head>
@@ -200,7 +202,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.0
       <a href="#mahsulotlar">Mahsulotlar</a>
       <a href="#biz-haqimizda">Biz haqimizda</a>
       <a href="#qadriyatlar">Qadriyatlar</a>
-      <a href="#aloqa">Aloqa</a>
+      <a href="#aloqa">Aloqa</a><a href="#murojaat">Murojaat</a>
     </nav>
     <a class="nav-phone" href="tel:+998914929090">+998 91 492 90 90</a>
   </div>
@@ -213,7 +215,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.0
     <div class="container hero-content">
       <p class="eyebrow">Sifatli temir beton mahsulotlari</p>
       <h1><span class="gold-text">Caston</span> &mdash; mustahkam kelajak uchun!</h1>
-      <p class="hero-text">PB va PK plitalar, tayyor beton, sokolniy bloklar, latoklar, stolbalar &mdash; qurilish loyihalaringiz uchun ishonchli yechim.</p>
+      <p class="hero-text">PB va PK plitalar, sokolniy bloklar &mdash; qurilish loyihalaringiz uchun ishonchli yechim.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#mahsulotlar">Mahsulotlarimiz</a>
         <a class="btn btn-outline" href="#aloqa">Biz bilan bog'lanish</a>
@@ -368,6 +370,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.0
       </div>
     </div>
   </section>
+<section class="section container" id="murojaat"><div class="request-panel"><p class="eyebrow">Murojaatlar</p><h2>Raqamingizni qoldiring</h2><p>Mutaxassislarimiz siz bilan bog‘lanishadi. Taklif va fikr-mulohazalaringizni ham yuborishingiz mumkin.</p><form id="request-form"><div class="request-grid"><label>Ismingiz<input name="name" autocomplete="name" maxlength="100" placeholder="Ismingiz"></label><label>Telefon raqamingiz *<input name="phone" type="tel" autocomplete="tel" required maxlength="25" placeholder="+998 90 123 45 67"></label><label>Murojaat turi<select name="type"><option>Qayta qo‘ng‘iroq</option><option>Buyurtma</option><option>Narx va ma’lumot</option><option>Hamkorlik</option><option>Taklif</option><option>Shikoyat</option></select></label><label>Mahsulot<select name="product"><option value="">Tanlanmagan</option><option>PB plitalar</option><option>PK plitalar</option><option>Sokolniy bloklar</option><option>Tayyor beton</option><option>Latoklar</option><option>Stolbalar</option></select></label><label class="request-wide">Fikr-mulohazangiz<textarea name="message" rows="4" maxlength="1500" placeholder="Xabaringizni yozing"></textarea></label></div><div class="request-trap" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div><label class="request-consent"><input type="checkbox" name="consent" required> Ma’lumotlarim murojaatimga javob berish uchun Caston Beton mas’ul xodimlariga Telegram orqali yuborilishiga roziman.</label><button class="btn btn-primary" type="submit">Murojaat yuborish →</button><p id="request-status" role="status" aria-live="polite"></p></form></div></section>
 </main>
 
 <footer class="site-footer">
@@ -418,5 +421,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -0.0
 })();
 </script>
 
+<script>
+const REQUEST_ENDPOINT = 'https://castonbeton-murojaat.erkinov030704.workers.dev';
+const rf = document.getElementById('request-form');
+document.querySelectorAll('[data-product]').forEach(a=>a.addEventListener('click',()=>{rf.elements.product.value=a.dataset.product;rf.elements.type.value='Narx va ma’lumot';}));
+rf.addEventListener('submit',async e=>{e.preventDefault();const status=document.getElementById('request-status'),btn=rf.querySelector('button');const data=Object.fromEntries(new FormData(rf));if(!/^\+?998\d{9}$/.test(data.phone.replace(/[\s()-]/g,''))){status.textContent='Telefon raqamini +998 XX XXX XX XX shaklida kiriting.';return;}if(REQUEST_ENDPOINT==='WORKER_URL'){status.textContent='Murojaat tizimi hali ulanmagan. Iltimos, telefon orqali bog‘laning.';return;}btn.disabled=true;status.textContent='Yuborilmoqda…';try{const r=await fetch(REQUEST_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await r.json();if(!r.ok||!result.ok)throw Error();rf.reset();status.textContent='Rahmat! Murojaatingiz qabul qilindi.';}catch{status.textContent='Xabar yuborilmadi. Qayta urinib ko‘ring yoki telefon orqali bog‘laning.';}finally{btn.disabled=false;}});
+</script>
 </body>
 </html>
